@@ -35,6 +35,13 @@
     </header>
 
     <div id="view-dashboard">
+      <div class="mb-6">
+        <div class="inline-flex bg-stone-200/70 p-1 rounded-xl">
+          <button id="dashboard-tab-video" onclick="setDashboardTab('video')" class="px-4 py-2 rounded-lg text-sm font-bold transition-all">Videos</button>
+          <button id="dashboard-tab-short" onclick="setDashboardTab('short')" class="px-4 py-2 rounded-lg text-sm font-bold transition-all">Shorts</button>
+        </div>
+      </div>
+
       <div class="grid grid-cols-3 gap-4 mb-8">
         <div class="bg-white p-5 rounded-2xl shadow-sm border border-stone-100">
           <div class="text-stone-400 text-xs font-bold uppercase tracking-wider mb-1">Total</div>
@@ -51,10 +58,10 @@
       </div>
 
       <div class="flex justify-between items-end mb-6">
-        <h2 class="text-xl font-bold text-stone-700">Recent Videos</h2>
-        <button onclick="createNewVideo()" class="bg-stone-900 hover:bg-black text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-stone-200 transform hover:scale-105 transition-all flex items-center gap-2">
+        <h2 class="text-xl font-bold text-stone-700" id="dashboard-heading">Recent Videos</h2>
+        <button onclick="createNewItem()" class="bg-stone-900 hover:bg-black text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-stone-200 transform hover:scale-105 transition-all flex items-center gap-2">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-          New Video
+          <span id="new-item-label">New Video</span>
         </button>
       </div>
 
@@ -71,9 +78,15 @@
 
       <div class="bg-white rounded-3xl shadow-xl shadow-stone-200/50 border border-stone-100 overflow-hidden">
         <div class="p-8 border-b border-stone-100">
+          <div class="mb-6">
+            <div class="inline-flex bg-stone-200/70 p-1 rounded-xl">
+              <button id="workspace-tab-video" onclick="setActiveWorkflowType('video')" class="px-4 py-2 rounded-lg text-sm font-bold transition-all">Videos</button>
+              <button id="workspace-tab-short" onclick="setActiveWorkflowType('short')" class="px-4 py-2 rounded-lg text-sm font-bold transition-all">Shorts</button>
+            </div>
+          </div>
           <div class="flex justify-between items-start gap-4">
             <div class="flex-1">
-              <label class="block text-xs font-bold text-stone-400 uppercase tracking-wider mb-2">Video Title</label>
+              <label id="title-label" class="block text-xs font-bold text-stone-400 uppercase tracking-wider mb-2">Video Title</label>
               <input type="text" id="active-title" 
                 class="w-full text-2xl font-bold text-stone-800 bg-transparent border-none focus:ring-0 p-0 placeholder-stone-300" 
                 placeholder="Untitled Video..."
@@ -106,61 +119,83 @@
     // --- CONFIGURATION ---
     const STORAGE_KEY = 'zh_youtube_data';
     
-    // The specific workflow steps from your uploaded table
-    const WORKFLOW_GROUPS = [
-      {
-        title: "Descript: Transcript & Timestamps",
-        steps: [
-          "Upload to Descript & transcribe",
-          "Copy & paste in doc",
-          "Get timestamps"
+    const WORKFLOW_CONFIG = {
+      video: {
+        label: "Video",
+        pluralLabel: "Videos",
+        untitledLabel: "Untitled Video",
+        groups: [
+          {
+            title: "Descript: Transcript & Timestamps",
+            steps: [
+              "Upload to Descript & transcribe",
+              "Copy & paste in doc",
+              "Get timestamps"
+            ]
+          },
+          {
+            title: "Flowy: Contents",
+            steps: [
+              "Get title",
+              "YouTube description"
+            ]
+          },
+          {
+            title: "Canva",
+            steps: [
+              "Create thumbnail",
+              "Create IG image"
+            ]
+          },
+          {
+            title: "ClipChamp",
+            steps: [
+              "Separate audio & adjust",
+              "Edit video & music",
+              "Export"
+            ]
+          },
+          {
+            title: "YouTube",
+            steps: [
+              "Upload & copy link",
+              "Add title & description"
+            ]
+          },
+          {
+            title: "Distribution",
+            steps: [
+              "Draft ZH weekly feature",
+              "Create & schedule social posts",
+              "Schedule on YouTube"
+            ]
+          }
         ]
       },
-      {
-        title: "Flowy: Contents",
-        steps: [
-          "Get title",
-          "YouTube description"
-        ]
-      },
-      {
-        title: "Canva",
-        steps: [
-          "Create thumbnail",
-          "Create IG image"
-        ]
-      },
-      {
-        title: "ClipChamp",
-        steps: [
-          "Separate audio & adjust",
-          "Edit video & music",
-          "Export"
-        ]
-      },
-      {
-        title: "YouTube",
-        steps: [
-          "Upload & copy link",
-          "Add title & description"
-        ]
-      },
-      {
-        title: "Distribution",
-        steps: [
-          "Draft ZH weekly feature",
-          "Create & schedule social posts",
-          "Schedule on YouTube"
+      short: {
+        label: "Short",
+        pluralLabel: "Shorts",
+        untitledLabel: "Untitled Short",
+        groups: [
+          { title: "Vimeo", steps: ["Download video"] },
+          { title: "Clipchamp", steps: ["Edit & add music", "Export as mp4", "Export audio"] },
+          { title: "Descript", steps: ["Upload to Descript", "Add captions", "Edit transcript", "Download transcript", "Export video"] },
+          { title: "ShotCut", steps: ["Add video", "Separate audio & delete", "Add mp3 file", "Export final file"] },
+          { title: "ChatGPT", steps: ["Generate video titles & captions"] },
+          { title: "YouTube", steps: ["Upload to YouTube", "Add title, description", "Schedule", "Set thumbnail on iPhone"] },
+          { title: "ContentStudio", steps: ["Upload to ContentStudio", "Add title & captions", "Set thumbnail", "Schedule on socials", "Copy & schedule on TikTok"] }
         ]
       }
-    ];
+    };
 
     // --- STATE MANAGEMENT ---
     let videos = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
     let currentVideoId = null;
+    let activeDashboardTab = 'video';
 
     // --- INITIALIZATION ---
     function init() {
+      normalizeData();
       renderDashboard();
       // Check if we have an active session hash or something? For now defaults to dashboard.
     }
@@ -171,10 +206,38 @@
       updateStats();
     }
 
-    function createNewVideo() {
+    function normalizeData() {
+      videos = videos.map(v => ({ ...v, type: v.type || 'video' }));
+    }
+
+    function getGroupsForType(type) {
+      return (WORKFLOW_CONFIG[type] || WORKFLOW_CONFIG.video).groups;
+    }
+
+    function getAllStepsForType(type) {
+      return getGroupsForType(type).flatMap(g => g.steps);
+    }
+
+    function updateTypeTabs(activeType, context) {
+      const primaryActive = 'bg-white text-stone-800 shadow-sm';
+      const primaryInactive = 'text-stone-500 hover:text-stone-700';
+      const videoBtn = document.getElementById(`${context}-tab-video`);
+      const shortBtn = document.getElementById(`${context}-tab-short`);
+      videoBtn.className = `px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeType === 'video' ? primaryActive : primaryInactive}`;
+      shortBtn.className = `px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeType === 'short' ? primaryActive : primaryInactive}`;
+    }
+
+    function setDashboardTab(type) {
+      activeDashboardTab = type;
+      renderDashboard();
+    }
+
+    function createNewItem() {
+      const type = activeDashboardTab;
       const newVideo = {
         id: Date.now().toString(),
         title: "",
+        type,
         createdAt: new Date().toISOString(),
         completed: false,
         steps: {} // { "Upload to Descript...": true/false }
@@ -194,6 +257,9 @@
       document.getElementById('view-workspace').classList.remove('hidden');
       
       document.getElementById('active-title').value = video.title;
+      document.getElementById('active-title').placeholder = WORKFLOW_CONFIG[video.type].untitledLabel;
+      document.getElementById('title-label').innerText = `${WORKFLOW_CONFIG[video.type].label} Title`;
+      updateTypeTabs(video.type, 'workspace');
       renderSteps(video);
       updateProgress(video);
       window.scrollTo(0, 0);
@@ -223,7 +289,7 @@
         video.steps[stepName] = !video.steps[stepName];
         
         // Check for full completion
-        const allSteps = WORKFLOW_GROUPS.flatMap(g => g.steps);
+        const allSteps = getAllStepsForType(video.type);
         const allDone = allSteps.every(s => video.steps[s]);
         video.completed = allDone;
 
@@ -246,16 +312,22 @@
     function renderDashboard() {
       const list = document.getElementById('video-list');
       list.innerHTML = '';
+      updateTypeTabs(activeDashboardTab, 'dashboard');
+      const config = WORKFLOW_CONFIG[activeDashboardTab];
+      document.getElementById('dashboard-heading').innerText = `Recent ${config.pluralLabel}`;
+      document.getElementById('new-item-label').innerText = `New ${config.label}`;
 
-      if (videos.length === 0) {
+      const filteredVideos = videos.filter(video => (video.type || 'video') === activeDashboardTab);
+
+      if (filteredVideos.length === 0) {
         list.innerHTML = `
           <div class="text-center py-12 bg-white rounded-2xl border border-stone-100 border-dashed">
-            <p class="text-stone-400 font-medium">No videos yet. Start your first one!</p>
+            <p class="text-stone-400 font-medium">No ${config.pluralLabel.toLowerCase()} yet. Start your first one!</p>
           </div>`;
       } else {
-        videos.forEach(video => {
+        filteredVideos.forEach(video => {
           // Calculate progress for preview
-          const allSteps = WORKFLOW_GROUPS.flatMap(g => g.steps);
+          const allSteps = getAllStepsForType(video.type);
           const doneCount = allSteps.filter(s => video.steps[s]).length;
           const pct = Math.round((doneCount / allSteps.length) * 100);
 
@@ -264,7 +336,7 @@
           el.onclick = () => openVideo(video.id);
           el.innerHTML = `
             <div class="flex-1">
-              <h3 class="font-bold text-stone-800 ${!video.title ? 'italic text-stone-400' : ''}">${video.title || 'Untitled Video'}</h3>
+              <h3 class="font-bold text-stone-800 ${!video.title ? 'italic text-stone-400' : ''}">${video.title || WORKFLOW_CONFIG[video.type].untitledLabel}</h3>
               <div class="text-xs text-stone-400 mt-1 flex items-center gap-2">
                 <span>${new Date(video.createdAt).toLocaleDateString()}</span>
                 <span class="w-1 h-1 bg-stone-300 rounded-full"></span>
@@ -289,7 +361,7 @@
       const container = document.getElementById('steps-container');
       container.innerHTML = '';
 
-      WORKFLOW_GROUPS.forEach(group => {
+      getGroupsForType(video.type).forEach(group => {
         const groupDiv = document.createElement('div');
         groupDiv.className = 'mb-8 last:mb-0';
         
@@ -325,8 +397,9 @@
     }
 
     function updateStats() {
-      const total = videos.length;
-      const completed = videos.filter(v => v.completed).length;
+      const scopedVideos = videos.filter(v => (v.type || 'video') === activeDashboardTab);
+      const total = scopedVideos.length;
+      const completed = scopedVideos.filter(v => v.completed).length;
       const active = total - completed;
 
       document.getElementById('stat-total').innerText = total;
@@ -335,7 +408,7 @@
     }
 
     function updateProgress(video) {
-      const allSteps = WORKFLOW_GROUPS.flatMap(g => g.steps);
+      const allSteps = getAllStepsForType(video.type);
       const doneCount = allSteps.filter(s => video.steps[s]).length;
       const totalCount = allSteps.length;
       const pct = Math.round((doneCount / totalCount) * 100);
@@ -368,7 +441,7 @@
           try {
             const content = JSON.parse(readerEvent.target.result);
             if(Array.isArray(content)) {
-              videos = content;
+              videos = content.map(v => ({ ...v, type: v.type || 'video' }));
               saveData();
               renderDashboard();
               alert('Import successful!');
@@ -379,6 +452,21 @@
         }
       }
       input.click();
+    }
+
+    function setActiveWorkflowType(type) {
+      const video = videos.find(v => v.id === currentVideoId);
+      if (!video || video.type === type) return;
+
+      video.type = type;
+      video.steps = {};
+      video.completed = false;
+      document.getElementById('active-title').placeholder = WORKFLOW_CONFIG[type].untitledLabel;
+      document.getElementById('title-label').innerText = `${WORKFLOW_CONFIG[type].label} Title`;
+      updateTypeTabs(type, 'workspace');
+      saveData();
+      renderSteps(video);
+      updateProgress(video);
     }
 
     // Run
